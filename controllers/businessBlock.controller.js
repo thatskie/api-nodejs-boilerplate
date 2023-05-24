@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const businessBlocks = require('../services/businessBlock.services');
 const validate = require('../middleware/validation.middleware');
-const JWTAuthenticate = require('../middleware/jwtAuth.middleware');
+const jwtAuthenticate = require('../middleware/jwtAuth.middleware');
 const verifySignature = require('../middleware/signature.middleware');
 
 /* GET Business Blocks */
-router.post('/', JWTAuthenticate, async function (req, res, next) {
+router.post('/', jwtAuthenticate, async function (req, res, next) {
   try {
     res.json(
       await businessBlocks.getMultipleData(
@@ -20,7 +20,7 @@ router.post('/', JWTAuthenticate, async function (req, res, next) {
   }
 });
 
-router.post('/:id', JWTAuthenticate, async function (req, res, next) {
+router.post('/:id', jwtAuthenticate, async function (req, res, next) {
   try {
     res.json(
       await businessBlocks.getDataByID(
@@ -37,7 +37,7 @@ router.post('/:id', JWTAuthenticate, async function (req, res, next) {
 
 router.put(
   '/:id',
-  JWTAuthenticate,
+  jwtAuthenticate,
   validate.businessBlock,
   verifySignature.businessBlock,
   async function (req, res, next) {

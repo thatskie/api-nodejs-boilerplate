@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const authentication = require('../services/auth.services');
-const auth = require('../middleware/jwtAuth.middleware');
 
 router.post('/', async function (req, res, next) {
   try {

@@ -33,8 +33,9 @@ async function getDataByID(id, page = 1, listPerPage) {
         business_title, 
         account_id
     FROM bblock_data 
-    WHERE id = ${id}
+    WHERE id = :id
     LIMIT ${offset},${datePerPage}`,
+    { id },
   );
   const message = data.length == 0 ? 'No record found!' : 'Success';
   const status = data.length == 0 ? 204 : 200;
@@ -57,10 +58,11 @@ async function update(id, data) {
 
   const result = await db.query(
     `UPDATE bblock_data 
-    SET business_title="${title}", 
-      business_type=${businessType},
-      package_desc="${packageDescription}"
-    WHERE id=${id}`,
+    SET business_title = :title, 
+      business_type = :businessType, 
+      package_desc = :packageDescription 
+    WHERE id = :id`,
+    { title, businessType, packageDescription, id },
   );
   const status = result.affectedRows ? 201 : 500;
   const message = result.affectedRows
