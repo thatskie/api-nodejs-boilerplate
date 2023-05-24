@@ -6,7 +6,7 @@ const jwtAuthenticate = require('../middleware/jwtAuth.middleware');
 const verifySignature = require('../middleware/signature.middleware');
 
 /* GET Business Blocks */
-router.post('/', jwtAuthenticate, async function (req, res, next) {
+router.get('/', jwtAuthenticate, async function (req, res, next) {
   try {
     res.json(
       await businessBlocks.getMultipleData(
@@ -20,7 +20,7 @@ router.post('/', jwtAuthenticate, async function (req, res, next) {
   }
 });
 
-router.post('/:id', jwtAuthenticate, async function (req, res, next) {
+router.get('/:id', jwtAuthenticate, async function (req, res, next) {
   try {
     res.json(
       await businessBlocks.getDataByID(

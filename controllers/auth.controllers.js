@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authentication = require('../services/auth.services');
 
-router.post('/', async function (req, res, next) {
+router.get('/', async function (req, res, next) {
   try {
     res.json(await authentication.createToken(req.body));
   } catch (err) {
