@@ -1,11 +1,11 @@
 const config = {
   db: {
     /* don't expose password or any sensitive info, done only for demo */
-    host: '127.0.0.1',
-    user: 'root',
-    password: 'march27aug23',
-    database: 'banquet',
-    port: 3306,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
   },
   listPerPage: 10,
 };

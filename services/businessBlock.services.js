@@ -1,5 +1,5 @@
 const db = require('../utils/db.utils');
-const helper = require('../utils/helper.utils');
+const helper = require('../middleware/dbHelper.middleware');
 const config = require('../config/dbConfig');
 
 async function getMultipleData(page = 1, listPerPage) {
@@ -47,18 +47,25 @@ async function getDataByID(id, page = 1, listPerPage) {
 }
 
 async function update(id, data) {
-  const { title, businessType } = data;
+  const {
+    title,
+    businessType,
+    packageDescription,
+    dateStart,
+    reservationType,
+  } = data;
 
-  const status = 200;
   const result = await db.query(
     `UPDATE bblock_data 
-    SET business_title="${title}", business_type=${businessType}
+    SET business_title="${title}", 
+      business_type=${businessType},
+      package_desc="${packageDescription}"
     WHERE id=${id}`,
   );
-
+  const status = result.affectedRows ? 201 : 500;
   const message = result.affectedRows
     ? 'Successfully updated Bussiness Block'
-    : 'An error occured while updated Business Block';
+    : 'An error occured while updating Business Block';
 
   return {
     status,

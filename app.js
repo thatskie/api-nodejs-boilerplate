@@ -1,8 +1,11 @@
+require('dotenv').config();
 const express = require('express');
-const app = express();
-const port = 3000;
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const apiRoutes = require('./routes/api.routes');
 
-const apiRoutes = require('./routes/businessBlock.routes');
+const app = express();
+const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use(
@@ -10,6 +13,11 @@ app.use(
     extended: true,
   }),
 );
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(cors());
+
 app.get('/', (req, res) => {
   res.json({ message: 'ok' });
 });
@@ -23,6 +31,6 @@ app.use((err, req, res, next) => {
   return;
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`Example app listening at http://localhost:${PORT}`);
 });
