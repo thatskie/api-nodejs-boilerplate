@@ -28,5 +28,5 @@
     "type": "git",
     "url": "github.com/thatskie/api-nodejs-boilerplate"
   },
-  "description": "<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->"
+  "description": "Code Template for making an backend API"
 }
