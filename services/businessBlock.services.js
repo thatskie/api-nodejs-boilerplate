@@ -1,6 +1,7 @@
 const db = require('../utils/db.utils');
 const helper = require('../middleware/dbHelper.middleware');
 const config = require('../config/dbConfig');
+const message = 'success';
 
 async function getMultipleData(page = 1, listPerPage) {
   const datePerPage = listPerPage == null ? config.listPerPage : listPerPage;
@@ -13,14 +14,19 @@ async function getMultipleData(page = 1, listPerPage) {
     FROM bblock_data 
     LIMIT ${offset},${datePerPage}`,
   );
-  const status = rows.length == 0 ? 204 : 200;
-  const data = helper.emptyOrRows(rows);
-  const meta = { page };
+  const dataCount = rows.length;
+  const status = dataCount == 0 ? 204 : 200;
+
+  const data = {
+    businessBlocks: helper.emptyOrRows(rows),
+    page,
+    dataCount,
+  };
 
   return {
     status,
     data,
-    meta,
+    message,
   };
 }
 
@@ -37,7 +43,7 @@ async function getDataByID(id, page = 1, listPerPage) {
     LIMIT ${offset},${datePerPage}`,
     { id },
   );
-  const message = data.length == 0 ? 'No record found!' : 'Success';
+  //const message = 'success';
   const status = data.length == 0 ? 204 : 200;
 
   return {
@@ -47,14 +53,14 @@ async function getDataByID(id, page = 1, listPerPage) {
   };
 }
 
-async function update(id, data) {
+async function update(id, content) {
   const {
     title,
     businessType,
     packageDescription,
     dateStart,
     reservationType,
-  } = data;
+  } = content;
 
   const result = await db.query(
     `UPDATE bblock_data 
@@ -64,14 +70,14 @@ async function update(id, data) {
     WHERE id = :id`,
     { title, businessType, packageDescription, id },
   );
-  const status = result.affectedRows ? 201 : 500;
-  const message = result.affectedRows
-    ? 'Successfully updated Bussiness Block'
-    : 'An error occured while updating Business Block';
+  console.log(result);
+  const status = 201;
+  const data = 'Successfully updated Bussiness Block';
 
   return {
     status,
     message,
+    data,
   };
 }
 

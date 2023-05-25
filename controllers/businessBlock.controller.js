@@ -35,7 +35,7 @@ router.get('/:id', jwtAuthenticate, async function (req, res, next) {
   }
 });
 
-router.put(
+router.patch(
   '/:id',
   jwtAuthenticate,
   validate.businessBlock,

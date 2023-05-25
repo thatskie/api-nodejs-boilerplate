@@ -24,10 +24,20 @@ app.get('/', (req, res) => {
 
 app.use('/api', apiRoutes);
 /* Error handler middleware */
+app.use((req, res, next) => {
+  const error = new Error(404);
+  next(error);
+});
 app.use((err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
   console.error(err.message, err.stack);
-  res.status(statusCode).json({ status: statusCode, message: err.message });
+  const statusCode = err.message == 404 ? 404 : err.statusCode || 500;
+  res.status(statusCode).json({
+    status: statusCode,
+    message: 'error',
+    data: {
+      'error message': err.message == 404 ? 'Request not found!' : err.message,
+    },
+  });
   return;
 });
 
