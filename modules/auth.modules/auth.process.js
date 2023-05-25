@@ -1,5 +1,5 @@
-const db = require('../utils/db.utils');
-const config = require('../config/dbConfig');
+const db = require('../../middleware/dbAction.middleware');
+const config = require('../../config/dbConfig');
 const jwt = require('jsonwebtoken');
 
 async function createToken(body) {

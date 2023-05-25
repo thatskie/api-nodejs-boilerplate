@@ -1,58 +1,17 @@
-const verify = require('../utils/signature.utils');
+const crypto = require('crypto');
 
-const businessBlock = async (req, res, next) => {
-  const {
-    title,
-    businessType,
-    dateStart,
-    reservationType,
-    packageDescription,
-    signature,
-  } = req.body;
-  const body = {
-    rawData:
-      title + businessType + dateStart + reservationType + packageDescription,
-    signature: signature,
-  };
-  await verify(body, 'Business Block', (err, status) => {
-    if (!status) {
-      res.status(401).send({
-        status: 401,
-        message: 'error',
-        data: err,
-      });
-    } else {
-      next();
-    }
-  }).catch((err) => console.log(err));
+const verify = async (body, module, callback) => {
+  const { rawData, signature } = body;
+  const hash = crypto.createHash('sha512').update(rawData).digest('hex');
+  signature == hash
+    ? callback(null, true)
+    : callback(
+        {
+          'error message': 'Invalid data signature for ' + module,
+          signature: signature,
+          valid: hash,
+        },
+        false,
+      );
 };
-
-// const guestData = async (req, res, next) => {
-//   const {
-//     lastName,
-//     firstName,
-//     middleName,
-//     signature
-//   } = req.body;
-//   const body = {
-//     rawData:
-//       title + businessType + dateStart + reservationType + packageDescription,
-//     signature: signature,
-//   };
-//   await verify(body, 'Guest', (err, status) => {
-//     if (!status) {
-//       res.status(401).send({
-//         status: 401,
-//         message: 'error',
-//         data: err,
-//       });
-//     } else {
-//       next();
-//     }
-//   }).catch((err) => console.log(err));
-// };
-
-module.exports = {
-  businessBlock,
-  // guestData,
-};
+module.exports = verify;
