@@ -80,6 +80,7 @@ Of course, no one template will serve all projects since your needs may be diffe
 2. JWTToken authentication
 3. Data Validation
 4. Data Signature
+5. Standardized and make API Versioning dynamic
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 <!-- GETTING STARTED -->
