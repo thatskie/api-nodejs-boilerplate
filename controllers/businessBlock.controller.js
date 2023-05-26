@@ -17,7 +17,8 @@ router.get(
         await businessBlocks.getMultipleData(
           req.params.v,
           req.query.page,
-          req.query.listPerPage,
+          req.query.limit,
+          req.user.userCredentials,
         ),
       );
     } catch (err) {
@@ -37,7 +38,8 @@ router.get(
           req.params.v,
           req.params.id,
           req.query.page,
-          req.query.listPerPage,
+          req.query.limit,
+          req.user.userCredentials,
         ),
       );
     } catch (err) {
@@ -55,7 +57,12 @@ router.patch(
   async function (req, res, next) {
     try {
       res.json(
-        await businessBlocks.update(req.params.v, req.params.id, req.body),
+        await businessBlocks.update(
+          req.params.v,
+          req.params.id,
+          req.body,
+          req.user.userCredentials,
+        ),
       );
     } catch (err) {
       console.error(`Error while updating Business Block`, err.message);

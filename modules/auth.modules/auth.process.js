@@ -6,7 +6,10 @@ async function createToken(body) {
   const { username, password } = body;
   const row = await db.query(
     `SELECT 
-        id, hotelid
+      id, 
+      hotelID, 
+      schemaName, 
+      hostName 
     FROM auth 
     WHERE username = :username
       AND password = :password
@@ -20,12 +23,10 @@ async function createToken(body) {
     rowCount == 0
       ? { 'error message': 'Invalid Credentials' }
       : {
-          hotelID: row[0]['hotelid'],
-          token: jwt.sign({ user: row }, process.env.TOKEN_KEY, {
+          token: jwt.sign({ userCredentials: row[0] }, process.env.TOKEN_KEY, {
             expiresIn: process.env.TOKEN_EXPIRES_IN,
           }),
         };
-
   return {
     status,
     data,

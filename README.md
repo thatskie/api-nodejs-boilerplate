@@ -76,11 +76,12 @@ Of course, no one template will serve all projects since your needs may be diffe
 
 ## Built in with
 
-1. MySQL
-2. JWTToken authentication
+1. MySQL Command
+2. JWTToken Authentication
 3. Data Validation
 4. Data Signature
 5. Standardized and make API Versioning dynamic
+6. Dynamic database configuration
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 <!-- GETTING STARTED -->

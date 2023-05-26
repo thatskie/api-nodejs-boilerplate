@@ -7,14 +7,14 @@ function getBusinessBlock(apiVersion) {
                     account_id,
                     package_desc
                 FROM bblock_data 
-                LIMIT :offset,:dataPerPage`;
+                LIMIT :offset,:paginationLimit`;
     default:
       return `SELECT 
                     id,
                     business_title,
                     account_id
                 FROM bblock_data 
-                LIMIT :offset,:dataPerPage`;
+                LIMIT :offset,:paginationLimit`;
   }
 }
 
@@ -27,7 +27,7 @@ function getBusinessBlockByID(apiVersion) {
                     account_id
                 FROM bblock_data 
                 WHERE id = :id
-                LIMIT :offset,:dataPerPage`;
+                LIMIT :offset,:paginationLimit`;
   }
 }
 

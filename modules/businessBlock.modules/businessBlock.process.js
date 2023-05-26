@@ -4,13 +4,17 @@ const config = require('../../config/dbConfig');
 const sql = require('./businessBlock.sql');
 const message = 'success';
 
-async function getMultipleData(apiVersion, page = 1, listPerPage) {
-  const dataPerPage = listPerPage == null ? config.listPerPage : listPerPage;
-  const offset = helper.getOffset(page, dataPerPage);
-  const rows = await db.query(sql.getBusinessBlock(apiVersion), {
-    offset,
-    dataPerPage,
-  });
+async function getMultipleData(apiVersion, page, limit, dbConfig) {
+  const paginationLimit = !limit ? config.listPerPage : limit;
+  const offset = helper.getOffset(!page ? 1 : page, paginationLimit);
+  const rows = await db.query(
+    sql.getBusinessBlock(apiVersion),
+    {
+      offset,
+      paginationLimit,
+    },
+    dbConfig,
+  );
   const dataCount = rows.length;
   const status = dataCount == 0 ? 204 : 200;
   const data = {
@@ -25,14 +29,18 @@ async function getMultipleData(apiVersion, page = 1, listPerPage) {
   };
 }
 
-async function getDataByID(apiVersion, id, page = 1, listPerPage) {
-  const dataPerPage = listPerPage == null ? config.listPerPage : listPerPage;
-  const offset = helper.getOffset(page, dataPerPage);
-  const data = await db.query(sql.getBusinessBlockByID(apiVersion), {
-    id,
-    offset,
-    dataPerPage,
-  });
+async function getDataByID(apiVersion, id, page, limit, dbConfig) {
+  const paginationLimit = !limit ? config.listPerPage : limit;
+  const offset = helper.getOffset(!page ? 1 : page, paginationLimit);
+  const data = await db.query(
+    sql.getBusinessBlockByID(apiVersion),
+    {
+      id,
+      offset,
+      paginationLimit,
+    },
+    dbConfig,
+  );
   const status = data.length == 0 ? 204 : 200;
 
   return {
@@ -42,7 +50,7 @@ async function getDataByID(apiVersion, id, page = 1, listPerPage) {
   };
 }
 
-async function update(apiVersion, id, content) {
+async function update(apiVersion, id, content, dbConfig) {
   const {
     title,
     businessType,
@@ -51,12 +59,16 @@ async function update(apiVersion, id, content) {
     reservationType,
   } = content;
 
-  const result = await db.query(sql.updateBusinessBlock(apiVersion), {
-    title,
-    businessType,
-    packageDescription,
-    id,
-  });
+  const result = await db.query(
+    sql.updateBusinessBlock(apiVersion),
+    {
+      title,
+      businessType,
+      packageDescription,
+      id,
+    },
+    dbConfig,
+  );
   console.log(result);
   const status = 201;
   const data = 'Successfully updated Bussiness Block';
