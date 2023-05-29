@@ -7,7 +7,12 @@
     "dev": "nodemon app",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "boilerplate",
+    "mysql",
+    "node",
+    "api"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
