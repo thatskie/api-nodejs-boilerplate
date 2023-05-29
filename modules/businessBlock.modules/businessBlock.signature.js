@@ -28,6 +28,4 @@ const businessBlock = async (req, res, next) => {
   }).catch((err) => console.log(err));
 };
 
-module.exports = {
-  businessBlock,
-};
+module.exports = businessBlock;

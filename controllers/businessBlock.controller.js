@@ -1,16 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const jwtAuthenticate = require('../middleware/jwtAuth.middleware');
-const versionAuth = require('../middleware/apiVersionChecker.middleware');
-const validate = require('../modules/businessBlock.modules/businessBlock.validation');
+const validateAPIVersion = require('../middleware/apiVersionChecker.middleware');
+const validateForm = require('../modules/businessBlock.modules/businessBlock.validation');
 const verifySignature = require('../modules/businessBlock.modules/businessBlock.signature');
 const businessBlocks = require('../modules/businessBlock.modules/businessBlock.process');
 
 /* GET Business Blocks */
 router.get(
   '/:v/business-blocks/',
-  versionAuth,
   jwtAuthenticate,
+  validateAPIVersion,
   async function (req, res, next) {
     try {
       res.json(
@@ -31,6 +31,7 @@ router.get(
 router.get(
   '/:v/business-blocks/:id',
   jwtAuthenticate,
+  validateAPIVersion,
   async function (req, res, next) {
     try {
       res.json(
@@ -52,8 +53,9 @@ router.get(
 router.patch(
   '/:v/business-blocks/:id',
   jwtAuthenticate,
-  validate.businessBlock,
-  verifySignature.businessBlock,
+  validateAPIVersion,
+  validateForm,
+  verifySignature,
   async function (req, res, next) {
     try {
       res.json(
