@@ -1,5 +1,5 @@
-const db = require('../../middleware/dbAction.middleware');
-const helper = require('../../middleware/dbHelper.middleware');
+const db = require('../../utils/dbAction.utils');
+const helper = require('../../utils/dbHelper.utils');
 const config = require('../../config/dbConfig');
 const sql = require('./businessBlock.sql');
 const message = 'success';

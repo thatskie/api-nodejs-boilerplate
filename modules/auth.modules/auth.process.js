@@ -1,4 +1,4 @@
-const db = require('../../middleware/dbAction.middleware');
+const db = require('../../utils/dbAction.utils');
 const config = require('../../config/dbConfig');
 const jwt = require('jsonwebtoken');
 
