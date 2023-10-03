@@ -1,0 +1,7 @@
+# Please take extra care not to add rules that will make tracked files ignored.
+# To test that, run `git ls-files -i --exclude-standard`.
+# To check why a specific file is ignored, run `git check-ignore -v <filepath>`.
+
+# === Rule for dotfiles ===
+# Ignore all env file
+.env
