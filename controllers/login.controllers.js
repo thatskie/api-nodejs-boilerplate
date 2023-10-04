@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const validateAPIVersion = require('../middleware/apiVersionChecker.middleware');
-const validateForm = require('../modules/auth.modules/auth.validation');
-const verifySignature = require('../modules/auth.modules/auth.signature');
-const authentication = require('../modules/auth.modules/auth.process');
+const validateForm = require('../modules/login.modules/login.validation');
+const verifySignature = require('../modules/login.modules/login.signature');
+const login = require('../modules/login.modules/login.process');
 
 router.get(
-  '/:v/authentication/',
+  '/:v/login/userCredentials',
   validateAPIVersion,
   validateForm,
   verifySignature,
   async function (req, res, next) {
     try {
-      res.json(await authentication.createToken(req.params.v, req.body));
+      res.json(await login.viaUserCredentials(req.params.v, req.body));
     } catch (err) {
       console.error(`Error logging-in in the system`, err.message);
       next(err);
