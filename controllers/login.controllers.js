@@ -5,7 +5,7 @@ const validateForm = require('../modules/login.modules/login.validation');
 const verifySignature = require('../modules/login.modules/login.signature');
 const login = require('../modules/login.modules/login.process');
 
-router.get(
+router.post(
   '/:v/login/userCredentials',
   validateAPIVersion,
   validateForm,
