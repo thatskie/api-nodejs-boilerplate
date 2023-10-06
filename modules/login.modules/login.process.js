@@ -3,12 +3,39 @@ const jwt = require('jsonwebtoken');
 const sql = require('./login.sql');
 const encryption = require('../../utils/cryptoJS.utils');
 
-async function viaUserCredentials(apiVersion, body) {
+async function viaUserUUID(apiVersion, session, sessionID, authProcess) {
+  const { usersID } = session.passport.user;
+  // console.log(usersID, usersName, sessionID);
+  const getPropertyData = await db.query(sql.getPropertyData(apiVersion), {
+    usersID,
+  });
+  return {
+    status: 200,
+    data: {
+      authProcess,
+      token: jwt.sign(
+        {
+          userData: encryption.encryptString(
+            JSON.stringify(getPropertyData[0]['data']),
+          ),
+        },
+        process.env.TOKEN_KEY,
+        {
+          expiresIn: process.env.TOKEN_EXPIRES_IN,
+        },
+      ),
+      sessionID,
+      session,
+    },
+    message: 'success',
+  };
+}
+
+async function viaEmail(apiVersion, body) {
   let data = {};
-  const { username, password } = body;
-  const checkUser = await db.query(sql.checkCredentials(apiVersion), {
-    username,
-    password,
+  const { provider, sub, id, displayName, email } = body;
+  const checkUser = await db.query(sql.checkEmailAddress(apiVersion), {
+    email,
   });
   const status = checkUser[0]['stat'] != 'success' ? 401 : 200;
   const message = checkUser[0]['stat'] != 'success' ? 'error' : 'success';
@@ -41,5 +68,6 @@ async function viaUserCredentials(apiVersion, body) {
 }
 
 module.exports = {
-  viaUserCredentials,
+  viaUserUUID,
+  viaEmail,
 };
