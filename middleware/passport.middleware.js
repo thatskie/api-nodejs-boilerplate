@@ -36,10 +36,9 @@ passport.use(
 passport.use(
   new GoogleStrategy(
     {
-      clientID:
-        '645166029492-d424e9q4ph0e0inv5cmc6017okafc327.apps.googleusercontent.com',
-      clientSecret: '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',
-      callbackURL: 'http://127.0.0.1:3000/api/v1.0.0/login/google/callback',
+      clientID: process.env.GoogleClientID,
+      clientSecret: process.env.GoogleClientSecret,
+      callbackURL: process.env.GoogleCallBackURL,
       passReqToCallback: true,
     },
     async function (request, accessToken, refreshToken, profile, done) {
@@ -70,9 +69,9 @@ passport.use(
   new MicrosoftStrategy(
     {
       // Standard OAuth2 options
-      clientID: 'e70cd292-9a6c-4e2e-8d29-17dd6912d04d',
-      clientSecret: 'Qi68Q~swGGsjAswAsXI9BzplDUuetfvVgDfIbbxe',
-      callbackURL: 'http://localhost:3000/api/v1.0.0/login/microsoft/callback',
+      clientID: process.env.MicrosoftClientID,
+      clientSecret: process.env.MicrosoftClientSecret,
+      callbackURL: process.env.MicrosoftCallBackURL,
       scope: ['user.read'],
       tenant: 'common',
       authorizationURL:
