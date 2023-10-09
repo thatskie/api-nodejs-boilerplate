@@ -1,15 +1,28 @@
 const mysql = require('mysql2/promise');
-const config = require('../config/dbConfig');
+const configuration = require('../config/configuration');
 
 async function query(sql, params, dbConfig) {
-  const schemaName = !dbConfig ? config.db.database : dbConfig.schemaName;
-  const hostName = !dbConfig ? config.db.host : dbConfig.hostName;
+  const schemaName = !dbConfig
+    ? configuration.database.connection.schema
+    : dbConfig.schemaName;
+  const hostName = !dbConfig
+    ? configuration.database.connection.host
+    : dbConfig.hostName;
+  const user = !dbConfig
+    ? configuration.database.connection.user
+    : dbConfig.user;
+  const password = !dbConfig
+    ? configuration.database.connection.password
+    : dbConfig.password;
+  const port = !dbConfig
+    ? configuration.database.connection.port
+    : dbConfig.port;
   const connection = await mysql.createConnection({
     host: hostName,
     database: schemaName,
-    port: config.db.port,
-    user: config.db.user,
-    password: config.db.password,
+    port: port,
+    user: user,
+    password: password,
     namedPlaceholders: true,
   });
   const [results] = await connection.execute(sql, params);

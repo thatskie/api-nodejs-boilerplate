@@ -1,9 +1,12 @@
+const config = require('../config/configuration');
 const db = require('../utils/dbAction.utils');
-const sql = require('../modules/login.modules/login.sql');
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth2').Strategy;
-const MicrosoftStrategy = require('passport-microsoft').Strategy;
-const LocalStrategy = require('passport-local').Strategy;
+const sql = require('../modules/authentication.modules/authentication.sql');
+const jwt = require('jsonwebtoken');
+const passport = require('passport'),
+  GoogleStrategy = require('passport-google-oauth2').Strategy,
+  MicrosoftStrategy = require('passport-microsoft').Strategy,
+  LocalStrategy = require('passport-local').Strategy,
+  JwtCookieComboStrategy = require('passport-jwt-cookiecombo').Strategy;
 
 passport.serializeUser(function (user, done) {
   console.log('serialize');
@@ -12,8 +15,25 @@ passport.serializeUser(function (user, done) {
 
 passport.deserializeUser(function (user, done) {
   console.log('deserialize');
+  console.log(user.usersID);
+  // console.log(user);
   done(null, user);
 });
+
+passport.use(
+  new JwtCookieComboStrategy(
+    {
+      secretOrPublicKey: config.passport.jwt.secret,
+      jwtVerifyOptions: config.passport.jwt.options,
+      passReqToCallback: false,
+    },
+    (payload, done) => {
+      console.log('here JwtCookieComboStrategy');
+      // console.log(payload);
+      return done(null, payload.user);
+    },
+  ),
+);
 
 passport.use(
   new LocalStrategy(async function verify(username, password, done) {
@@ -36,9 +56,9 @@ passport.use(
 passport.use(
   new GoogleStrategy(
     {
-      clientID: process.env.GoogleClientID,
-      clientSecret: process.env.GoogleClientSecret,
-      callbackURL: process.env.GoogleCallBackURL,
+      clientID: config.passport.google.clientId,
+      clientSecret: config.passport.google.clientSecret,
+      callbackURL: config.passport.google.callbackURL,
       passReqToCallback: true,
     },
     async function (request, accessToken, refreshToken, profile, done) {
@@ -69,9 +89,9 @@ passport.use(
   new MicrosoftStrategy(
     {
       // Standard OAuth2 options
-      clientID: process.env.MicrosoftClientID,
-      clientSecret: process.env.MicrosoftClientSecret,
-      callbackURL: process.env.MicrosoftCallBackURL,
+      clientID: config.passport.microsoft.clientId,
+      clientSecret: config.passport.microsoft.clientSecret,
+      callbackURL: config.passport.microsoft.callbackURL,
       scope: ['user.read'],
       tenant: 'common',
       authorizationURL:

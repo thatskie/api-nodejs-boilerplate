@@ -8,8 +8,10 @@ const morgan = require('morgan');
 const apiRoutes = require('./routes/api.routes');
 const passport = require('passport');
 const session = require('express-session');
+const cookieParser = require('cookie-parser');
 const MySQLStore = require('express-mysql-session')(session);
 const PORT = process.env.PORT; // defining port of the server
+const config = require('./config/configuration');
 // defining the Express app
 const app = express();
 require('./middleware/passport.middleware');
@@ -27,14 +29,13 @@ app.use(cors()); // enabling CORS for all requests
 app.use(morgan('combined')); // adding morgan to log HTTP requests
 // defining Passport
 app.use(passport.initialize());
-// app.use(passport.session());
 // configure mysql session store
 const MySQLOptions = {
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
+  host: config.database.connection.host,
+  port: config.database.connection.port,
+  user: config.database.connection.user,
+  password: config.database.connection.password,
+  database: config.database.connection.schema,
   createDatabaseTable: false,
   schema: {
     tableName: 'sessions',
@@ -49,16 +50,18 @@ const sessionStore = new MySQLStore(MySQLOptions);
 // defining Session
 app.use(
   session({
-    key: 'session_cookie_name',
-    secret: process.env.CookieSecret,
+    key: 'servo-jwt',
+    secret: config.passport.jwt.secret,
     resave: false,
     store: sessionStore,
     saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 * 24 },
+    cookie: { maxAge: 1000 * 60 * 60 * 12 },
     // cookie: { secure: true, maxAge: 1000 * 60 * 60 * 24 },
   }),
 );
 app.use(passport.session());
+// defining Cookie
+app.use(cookieParser(config.passport.jwt.secret));
 // defining an endpoint
 app.get('/', (req, res) => {
   res.json({ message: 'ok' });
@@ -70,6 +73,7 @@ app.use((req, res, next) => {
   next(error);
 });
 app.use((err, req, res, next) => {
+  // console.log(req);
   // console.log(req.isAuthenticated());
   // console.error(err.message, err.stack);
   if (!req.isAuthenticated()) {

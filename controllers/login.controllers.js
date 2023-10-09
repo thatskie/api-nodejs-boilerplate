@@ -2,9 +2,12 @@ const express = require('express');
 const passport = require('passport');
 const router = express.Router();
 const validateAPIVersion = require('../middleware/apiVersionChecker.middleware');
-const validateForm = require('../modules/login.modules/login.validation');
-const verifySignature = require('../modules/login.modules/login.signature');
-const login = require('../modules/login.modules/login.process');
+const validateForm = require('../modules/authentication.modules/authentication.validation');
+const verifySignature = require('../modules/authentication.modules/authentication.signature');
+// const createVerifiedCookie = require('../middleware/passportCookieCombo.middleware');
+const login = require('../modules/authentication.modules/authentication.process');
+const jwt = require('jsonwebtoken');
+const configuration = require('../config/configuration');
 
 //Log Out
 router.post('/:v/logout', function (req, res, next) {
@@ -17,27 +20,42 @@ router.post('/:v/logout', function (req, res, next) {
 });
 
 //Check User
-router.post('/:v/login/user', function (req, res, next) {
-  // console.log(req.session);
-  const status = 200;
-  const message = 'success';
-  const data = req.session.passport.user;
-  res.status(status).json({
-    status,
-    message,
-    data,
-  });
-});
+//http://127.0.0.1:3000/api/v1.0.0/login/user
+router.get(
+  '/:v/login/user',
+  // passport.authenticate('jwt-cookiecombo', {
+  //   session: false,
+  // }),
+  function (req, res, next) {
+    try {
+      // console.log(req.session.passport.user);
+      console.log(req.signedCookies['servo-jwt']);
+      const status = 200;
+      const message = 'success';
+      const data = req.session.passport.user;
+      res.status(status).json({
+        status,
+        message,
+        data,
+      });
+    } catch (ex) {
+      console.log(ex);
+    }
+  },
+);
 
 //Failure Log In
 router.get('/:v/login/failed', function (req, res, next) {
   // console.log(req.session);
-  const errorMessage = req.session.messages.pop();
+  const errorMessage =
+    req.session && req.session.messages
+      ? req.session.messages.pop()
+      : 'Log in Failed';
   res.status(401).json({
     status: 401,
     message: 'error',
     data: {
-      'error message': errorMessage ? errorMessage : 'Log in Failed',
+      'error message': errorMessage,
     },
   });
 });
@@ -54,18 +72,15 @@ router.post(
     failureRedirect: '/api/v1.0.0/login/failed',
     failureMessage: true,
   }),
+  // createVerifiedCookie,
   async function (req, res, next) {
     try {
-      // console.log(req.sessionID);
-      // console.log(req.session);
-      res.json(
-        await login.viaUserUUID(
-          req.params.v,
-          req.session,
-          req.sessionID,
-          'Local Credentials',
-        ),
-      );
+      // console.log(req.user, req.sessionID, req.session);
+      const response = await login.viaUserUUID(req.params.v, req.session);
+      response.buildVersion = configuration.apiVersion;
+      response.logInProcess = 'via Local Credentials';
+      // response.data.uniqueID = req.generatedUUID;
+      res.status(response['status']).send(response);
     } catch (err) {
       console.error(`Error logging-in in the system`, err.message);
       next(err);
@@ -95,14 +110,12 @@ router.get(
   }),
   async function (req, res, next) {
     try {
-      res.json(
-        await login.viaUserUUID(
-          req.params.v,
-          req.session,
-          req.sessionID,
-          'Google Authentication',
-        ),
-      );
+      // console.log(req.user, req.sessionID, req.session);
+      const response = await login.viaUserUUID(req.params.v, req.session);
+      response.buildVersion = configuration.apiVersion;
+      response.logInProcess = 'via Google Authentication';
+      // response.data.uniqueID = req.generatedUUID;
+      res.status(response['status']).send(response);
     } catch (err) {
       console.error(`Error logging-in in the system`, err.message);
       next(err);
@@ -127,16 +140,13 @@ router.get(
     failureMessage: true,
   }),
   async function (req, res, next) {
-    console.log(req);
     try {
-      res.json(
-        await login.viaUserUUID(
-          req.params.v,
-          req.session,
-          req.sessionID,
-          'Microsoft Authentication',
-        ),
-      );
+      // console.log(req.user, req.sessionID, req.session);
+      const response = await login.viaUserUUID(req.params.v, req.session);
+      response.buildVersion = configuration.apiVersion;
+      response.logInProcess = 'via Google Authentication';
+      // response.data.uniqueID = req.generatedUUID;
+      res.status(response['status']).send(response);
     } catch (err) {
       console.error(`Error logging-in in the system`, err.message);
       next(err);
