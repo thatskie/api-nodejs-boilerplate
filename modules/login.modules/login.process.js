@@ -31,43 +31,43 @@ async function viaUserUUID(apiVersion, session, sessionID, authProcess) {
   };
 }
 
-async function viaEmail(apiVersion, body) {
-  let data = {};
-  const { provider, sub, id, displayName, email } = body;
-  const checkUser = await db.query(sql.checkEmailAddress(apiVersion), {
-    email,
-  });
-  const status = checkUser[0]['stat'] != 'success' ? 401 : 200;
-  const message = checkUser[0]['stat'] != 'success' ? 'error' : 'success';
-  if (checkUser[0]['stat'] != 'success') {
-    data = { 'error message': checkUser[0]['stat'] };
-  } else {
-    const userID = checkUser[0]['user_id'];
-    const getPropertyData = await db.query(sql.getPropertyData(apiVersion), {
-      userID,
-    });
-    data = {
-      token: jwt.sign(
-        {
-          userData: encryption.encryptString(
-            JSON.stringify(getPropertyData[0]['data']),
-          ),
-        },
-        process.env.TOKEN_KEY,
-        {
-          expiresIn: process.env.TOKEN_EXPIRES_IN,
-        },
-      ),
-    };
-  }
-  return {
-    status,
-    data,
-    message,
-  };
-}
+// async function viaEmail(apiVersion, body) {
+//   let data = {};
+//   const { provider, sub, id, displayName, email } = body;
+//   const checkUser = await db.query(sql.checkEmailAddress(apiVersion), {
+//     email,
+//   });
+//   const status = checkUser[0]['stat'] != 'success' ? 401 : 200;
+//   const message = checkUser[0]['stat'] != 'success' ? 'error' : 'success';
+//   if (checkUser[0]['stat'] != 'success') {
+//     data = { 'error message': checkUser[0]['stat'] };
+//   } else {
+//     const userID = checkUser[0]['user_id'];
+//     const getPropertyData = await db.query(sql.getPropertyData(apiVersion), {
+//       userID,
+//     });
+//     data = {
+//       token: jwt.sign(
+//         {
+//           userData: encryption.encryptString(
+//             JSON.stringify(getPropertyData[0]['data']),
+//           ),
+//         },
+//         process.env.TOKEN_KEY,
+//         {
+//           expiresIn: process.env.TOKEN_EXPIRES_IN,
+//         },
+//       ),
+//     };
+//   }
+//   return {
+//     status,
+//     data,
+//     message,
+//   };
+// }
 
 module.exports = {
   viaUserUUID,
-  viaEmail,
+  // viaEmail,
 };
