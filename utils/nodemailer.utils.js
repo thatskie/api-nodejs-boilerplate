@@ -1,13 +1,13 @@
 const nodemailer = require('nodemailer');
-const emailConfig = require('../config/emailConfig');
+const config = require('../config/configuration');
 
 const transporter = nodemailer.createTransport({
-  host: emailConfig.SMTPHost,
-  port: emailConfig.SMTPPort,
-  secure: emailConfig.SMTPSecure,
+  host: config.email.SMTPHost,
+  port: config.email.SMTPPort,
+  secure: config.email.SMTPSecure,
   auth: {
-    user: emailConfig.SMTPUsername,
-    pass: emailConfig.SMTPPassword,
+    user: config.email.SMTPUsername,
+    pass: config.email.SMTPPassword,
   },
 });
 
@@ -15,8 +15,8 @@ exports.sendEmail = (send_name, send_to, subject, message) => {
   return new Promise((resolve, reject) => {
     const email_message = {
       from: {
-        name: emailConfig.SMTPName,
-        address: emailConfig.SMTPUsername,
+        name: config.email.SMTPName,
+        address: config.email.SMTPUsername,
       },
       to: {
         name: send_name,

@@ -13,6 +13,7 @@ module.exports = {
         signed: true,
         secure: true,
       },
+      key: 'servo-jwt',
     },
     google: {
       clientId: process.env.GoogleClientID,

@@ -1,3 +1,27 @@
+/*
+Available Status Codes:
+2xx Success
+  200 - Standard response for successful HTTP requests
+  201 - The request has been fulfilled [Add, Update, Delete]
+  204 - The server successfully processed the request, and is not returning any content
+
+4xx Client Errors
+  400 - Bad request
+  401 - Similar to 403 Forbidden, but specifically for use when authentication is required and has failed or has not yet been provided
+  403 - Forbidden Request, The request contained valid data and was understood by the server, but the server is refusing action
+  404 - The requested resource could not be found
+  405 - A request method is not supported for the requested resource; for example, a GET request on a form that requires data to be presented via POST, or a PUT request on a read-only resource
+  410 - Indicates that the resource requested was previously in use but is no longer available and will not be available again.
+  412 - The server does not meet one of the preconditions that the requester put on the request header fields
+  498 - Invalid Token
+  499 - Token Required
+
+5xx Server Errors
+  521 - Web Server is Down  
+  522 - Connection Time Out
+  524 - A Timeout Occured
+  599 - MySQL Syntax Error
+*/
 require('dotenv').config();
 //importing the dependencies
 const express = require('express');
@@ -50,7 +74,7 @@ const sessionStore = new MySQLStore(MySQLOptions);
 // defining Session
 app.use(
   session({
-    key: 'servo-jwt',
+    key: config.passport.jwt.key,
     secret: config.passport.jwt.secret,
     resave: false,
     store: sessionStore,

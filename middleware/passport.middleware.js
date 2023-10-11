@@ -9,14 +9,12 @@ const passport = require('passport'),
   JwtCookieComboStrategy = require('passport-jwt-cookiecombo').Strategy;
 
 passport.serializeUser(function (user, done) {
-  console.log('serialize');
+  // console.log('serialize');
   done(null, user);
 });
 
 passport.deserializeUser(function (user, done) {
-  console.log('deserialize');
-  console.log(user.usersID);
-  // console.log(user);
+  // console.log('deserialize');
   done(null, user);
 });
 
