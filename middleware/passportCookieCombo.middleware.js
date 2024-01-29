@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const configuration = require('../config/configuration');
+const config = require('../config/configuration');
 
 const passportCookieCombo = (req, res, next) => {
   try {
@@ -7,8 +7,8 @@ const passportCookieCombo = (req, res, next) => {
     console.log(req.user);
     jwt.sign(
       { user: req.user },
-      configuration.passport.jwt.secret,
-      configuration.passport.jwt.options,
+      config.passport.jwt.secret,
+      config.passport.jwt.options,
       (err, JWTToken) => {
         if (err) {
           return res.status(500).send({
@@ -20,7 +20,7 @@ const passportCookieCombo = (req, res, next) => {
           // Send Set-Cookie header
           console.log('cookie created');
           console.log(JWTToken);
-          res.cookie('servo-jwt', JWTToken, {
+          res.cookie('SERVOAuth', JWTToken, {
             httpOnly: true,
             sameSite: true,
             signed: true,

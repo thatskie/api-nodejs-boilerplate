@@ -1,22 +1,37 @@
 const mysql = require('mysql2/promise');
-const configuration = require('../config/configuration');
+const config = require('../config/configuration');
+const encryption = require('./cryptoJS.utils');
 
 async function query(sql, params, dbConfig) {
-  const schemaName = !dbConfig
-    ? configuration.database.connection.schema
-    : dbConfig.schemaName;
-  const hostName = !dbConfig
-    ? configuration.database.connection.host
-    : dbConfig.hostName;
-  const user = !dbConfig
-    ? configuration.database.connection.user
-    : dbConfig.user;
-  const password = !dbConfig
-    ? configuration.database.connection.password
-    : dbConfig.password;
-  const port = !dbConfig
-    ? configuration.database.connection.port
-    : dbConfig.port;
+  const useDBConfig = dbConfig
+    ? JSON.parse(encryption.decryptString(dbConfig))
+    : false;
+  const isArray =
+    sql instanceof Array === 'false' || sql instanceof Array === false
+      ? false
+      : true;
+  const querySQL = isArray ? sql[0] : sql;
+  const outputSQL = isArray ? sql[1] : null;
+  const schemaName =
+    useDBConfig === false
+      ? config.database.connection.schema
+      : useDBConfig.schemaName;
+  const hostName =
+    useDBConfig === false
+      ? config.database.connection.host
+      : useDBConfig.hostName;
+  const user =
+    useDBConfig === false
+      ? config.database.connection.user
+      : useDBConfig.dbUsername;
+  const password =
+    useDBConfig === false
+      ? config.database.connection.password
+      : useDBConfig.dbPassword;
+  const port =
+    useDBConfig === false
+      ? config.database.connection.port
+      : useDBConfig.connectionPort;
   const connection = await mysql.createConnection({
     host: hostName,
     database: schemaName,
@@ -25,8 +40,18 @@ async function query(sql, params, dbConfig) {
     password: password,
     namedPlaceholders: true,
   });
-  const [results] = await connection.execute(sql, params);
-  return results;
+  const [results] = await connection.execute(querySQL, params);
+  if (!isArray) {
+    connection.end();
+    return results;
+  } else {
+    const [outVariable] = await connection.query(outputSQL);
+    connection.end();
+    return {
+      results,
+      outVariable,
+    };
+  }
 }
 
 module.exports = {

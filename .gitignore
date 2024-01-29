@@ -5,3 +5,5 @@
 # === Rule for dotfiles ===
 # Ignore all env file
 .env
+
+/config/config.ts

@@ -1,5 +1,11 @@
+const { request } = require('https');
 /*
-Available Status Codes:
+This file contains the configuration and setup for an Express.js server utilizing 
+various middleware and handling different HTTP status codes. 
+It sets up endpoints, handles API requests, and implements error handling
+
+
+Suggested Status Codes:
 2xx Success
   200 - Standard response for successful HTTP requests
   201 - The request has been fulfilled [Add, Update, Delete]
@@ -22,38 +28,57 @@ Available Status Codes:
   524 - A Timeout Occured
   599 - MySQL Syntax Error
 */
-require('dotenv').config();
+require('dotenv').config() /* Loads environment variables from a .env file */;
 //importing the dependencies
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const apiRoutes = require('./routes/api.routes');
-const passport = require('passport');
-const session = require('express-session');
-const cookieParser = require('cookie-parser');
-const MySQLStore = require('express-mysql-session')(session);
-const PORT = process.env.PORT; // defining port of the server
-const config = require('./config/configuration');
-// defining the Express app
-const app = express();
-require('./middleware/passport.middleware');
-app.use(express.json());
+const express = require('express') /* Node.js middleware for server setup */,
+  bodyParser = require('body-parser') /* Node.js middleware for server setup */,
+  cors = require('cors') /* Node.js middleware for server setup */,
+  helmet = require('helmet') /* Node.js middleware for server setup */,
+  morgan = require('morgan') /* Node.js middleware for server setup */,
+  apiRoutes = require('./routes/api.routes') /* imports and assigns the functionality and route definitions defined in the api.routes.js file/module. It is commonly used in Node.js/Express applications to manage and organize API-related routes separately from the main application logic */,
+  session = require('express-session') /* Provides session middleware for Express */,
+  passport = require('passport') /* Authentication middleware for Node.js */,
+  MySQLStore = require('express-mysql-session')(
+    session,
+  ) /* Sets up a MySQL session store for managing session data */,
+  PORT = process.env.PORT /* defining port of the server */,
+  config = require('./config/configuration') /* import configuration file */,
+  app = express() /* defining the Express app */,
+  flash = require('connect-flash'),
+  logger = require('./utils/logger.utils')
+  logger.require("System Running in " + (config.isDevelopment === true ? "Development" : "Production") + " mode");
+app.use(
+  express.json(),
+); /* This line of code configures the Express application (app) to use the built-in middleware express.json(). This middleware is responsible for parsing incoming JSON data from client requests */
 app.use(
   express.urlencoded({
     extended: true,
   }),
-);
-app.use(helmet()); // adding Helmet to enhance your API's security
-// using bodyParser to parse JSON bodies into JS objects
-app.use(bodyParser.urlencoded({ extended: false }));
+); /* This line of code configures the Express application (app) to use the built-in middleware express.urlencoded(). This middleware is used to parse incoming request bodies with URL-encoded payloads. */
+app.use(
+  helmet(),
+); /* This line of code adds the helmet middleware to the Express application (app). Helmet is a collection of middleware functions for securing Express apps by setting various HTTP headers */
+app.use(
+  bodyParser.urlencoded({ extended: false }),
+) /* This line of code configures the Express application (app) to use the body-parser middleware with specific settings for handling URL-encoded data. The body-parser package allows parsing of incoming request bodies in different formats, and in this case, it focuses on URL-encoded data */;
 app.use(bodyParser.json());
-app.use(cors()); // enabling CORS for all requests
+//enabling CORS for all requests
+app.use(
+  cors({
+    credentials: true,
+    origin: [
+      'http://127.0.0.1:5173',
+      'https://servopms.servocloud.solutions',
+      'https://qa.servoit.solutions',
+      'https://dev.servoit.solutions',
+      'https://uat.servoit.solutions',
+    ],
+    preflightContinue: true,
+    optionsSuccessStatus: 204,
+  }),
+);
 app.use(morgan('combined')); // adding morgan to log HTTP requests
-// defining Passport
-app.use(passport.initialize());
-// configure mysql session store
+// configuration for mysql session store
 const MySQLOptions = {
   host: config.database.connection.host,
   port: config.database.connection.port,
@@ -61,6 +86,9 @@ const MySQLOptions = {
   password: config.database.connection.password,
   database: config.database.connection.schema,
   createDatabaseTable: false,
+  checkExpirationInterval: 900000,
+  expiration: 1000 * 60 * 60 * 12,
+  clearExpired: true,
   schema: {
     tableName: 'sessions',
     columnNames: {
@@ -70,25 +98,31 @@ const MySQLOptions = {
     },
   },
 };
-const sessionStore = new MySQLStore(MySQLOptions);
-// defining Session
+// defining Cookie
+// app.use(cookieParser());
+// configuration for session
 app.use(
   session({
     key: config.passport.jwt.key,
     secret: config.passport.jwt.secret,
     resave: false,
-    store: sessionStore,
+    store: new MySQLStore(MySQLOptions),
+    proxy: true,
     saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 * 12 },
-    // cookie: { secure: true, maxAge: 1000 * 60 * 60 * 24 },
+    cookie: config.isDevelopment
+      ? { maxAge: 1000 * 60 * 60 * 12 }
+      : config.passport.jwt.cookie,
   }),
 );
+// defining Passport
+// app.set('trust proxy', 1);
 app.use(passport.session());
-// defining Cookie
-app.use(cookieParser(config.passport.jwt.secret));
+app.use(passport.initialize());
+app.use(flash());
+require('./middleware/passport.middleware');
 // defining an endpoint
 app.get('/', (req, res) => {
-  res.json({ message: 'ok' });
+  res.json({ message: 'ok', buildVersion: config.apiVersion });
 });
 app.use('/api', apiRoutes); // declaring routes
 /* Error handler middleware */
@@ -97,31 +131,25 @@ app.use((req, res, next) => {
   next(error);
 });
 app.use((err, req, res, next) => {
-  // console.log(req);
-  // console.log(req.isAuthenticated());
-  // console.error(err.message, err.stack);
-  if (!req.isAuthenticated()) {
-    res.status(401).json({
-      status: 401,
-      message: 'error',
-      data: {
-        'error message': 'Restricted Access',
-      },
-    });
-  } else {
-    const statusCode = err.message == 404 ? 404 : err.statusCode || 500;
-    res.status(statusCode).json({
-      status: statusCode,
-      message: 'error',
-      data: {
-        'error message':
-          err.message == 404 ? 'Request not found!' : err.message,
-      },
-    });
-  }
+  const statusCode = err.message == 404 ? 404 : err.statusCode || 500;
+  const errors = new Array();
+  errors.push({
+    error: {
+      remarks: statusCode === 400 ? 'Request not found!' : err.message,
+    },
+  });
+  res.status(statusCode).json({
+    status: statusCode,
+    message: 'error',
+    data: {
+      error_message: 'System Error',
+      level: 0,
+      errors,
+    },
+  });
   return;
 });
 // starting the server
 app.listen(PORT, () => {
-  console.log(`Example app listening at http://localhost:${PORT}`);
+  logger.require(`App listening at http://localhost:${PORT}`);
 });

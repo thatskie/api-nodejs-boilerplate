@@ -23,7 +23,7 @@ exports.sendEmail = (send_name, send_to, subject, message) => {
         address: send_to,
       },
       subject: subject,
-      text: message,
+      html: message,
     };
 
     transporter
@@ -32,7 +32,7 @@ exports.sendEmail = (send_name, send_to, subject, message) => {
         resolve(true);
       })
       .catch((error) => {
-        console.log(error);
+        // console.log(error);
         reject(false);
       });
   });

@@ -1,29 +1,37 @@
+const isDevelopment =
+  process.env.NODE_ENV === undefined || process.env.NODE_ENV === false || process.env.NODE_ENV.toLocaleLowerCase() === 'development' ? true : false;
 module.exports = {
+  isDevelopment: isDevelopment,
   passport: {
     jwt: {
-      secret: process.env.JWTCookieComboSecretKey || 'SetStrongSecretInDotEnv',
+      secret: process.env.JWTSecretKey || 'SetStrongSecretInDotEnv',
       options: {
-        //   audience: 'https://example.io',
         expiresIn: '12h',
         issuer: 'servo',
       },
       cookie: {
         httpOnly: true,
-        sameSite: true,
+        sameSite: 'none',
         signed: true,
         secure: true,
+        maxAge: 1000 * 60 * 60 * 12,
+        path: '/',
       },
-      key: 'servo-jwt',
+      key: 'SERVOAuth',
     },
     google: {
       clientId: process.env.GoogleClientID,
       clientSecret: process.env.GoogleClientSecret,
-      callbackURL: process.env.GoogleCallBackURL,
+      callbackURL: isDevelopment
+        ? process.env.GoogleCallBackURL
+        : process.env.GoogleCallBackURL_LIVE,
     },
     microsoft: {
       clientId: process.env.MicrosoftClientID,
       clientSecret: process.env.MicrosoftClientSecret,
-      callbackURL: process.env.MicrosoftCallBackURL,
+      callbackURL: isDevelopment
+        ? process.env.MicrosoftCallBackURL
+        : process.env.MicrosoftCallBackURL_LIVE,
     },
   },
   email: {
@@ -36,25 +44,18 @@ module.exports = {
   },
   database: {
     connection: {
-      /* don't expose password or any sensitive info, done only for demo */
-      host: process.env.DB_HOST,
-      port: process.env.DB_PORT,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      schema: process.env.DB_NAME,
+      host: isDevelopment ? process.env.DB_HOST : process.env.DB_HOST_LIVE,
+      port: isDevelopment ? process.env.DB_PORT : process.env.DB_PORT_LIVE,
+      user: isDevelopment ? process.env.DB_USER : process.env.DB_USER_LIVE,
+      password: isDevelopment ? process.env.DB_PASS : process.env.DB_PASS_LIVE,
+      schema: isDevelopment ? process.env.DB_NAME : process.env.DB_NAME_LIVE,
     },
     listPerPage: 10,
+    encryptKey: process.env.DBENCRYPT,
   },
-  apiVersion: 'v1.0.0',
+  apiVersion: 'v1.0.105',
   cryptoJSKey: { key: 'March27Aug23', iv: 'Des1024d' },
-  allowedCredentials: [
-    'bookingEngine',
-    'bookingEngineWAN',
-    'servo',
-    'march27aug23',
-    '91792270',
-    'acea',
-    'modala',
-    'localhost',
-  ],
+  url: {
+    frontEnd: isDevelopment ? process.env.URL_FE : process.env.URL_FE_LIVE,
+  },
 };

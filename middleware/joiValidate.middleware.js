@@ -8,13 +8,17 @@ const validator = (schema, property) => {
       next();
     } else {
       const { details } = error;
-      const message = details.map((i) => i.message);
+      const errors = new Array();
+      details.map((i) =>
+        errors.push({ error: { remarks: i.message, field: i.context.key } }),
+      );
       res.status(412).json({
         status: 412,
         message: 'error',
         data: {
-          'error message': 'Data validation failed!',
-          errors: message,
+          error_message: 'Data validation failed!',
+          level: 2,
+          errors,
         },
       });
     }
